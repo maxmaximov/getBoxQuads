@@ -2,6 +2,7 @@
   if (Element.prototype.getBoxQuads) return;
 
   var CSSBoxType = ["margin", "border", "padding", "content"];
+  var GeometryNode = [Document, Element, Text];
 
   function getProps(styles, prop) {
     var props = {
@@ -34,70 +35,96 @@
     return getProps(styles, 'padding');
   }
 
-  function getBounds(boxType, rect, margins, borders, paddings) {
+  function getBounds(boxType, rect, margins, borders, paddings, offsetX, offsetY) {
     var bounds = {
       width: rect.width,
       height: rect.height,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-      left: rect.left
+      x: rect.left - offsetX,
+      y: rect.top - offsetY
     };
 
     if (boxType === 'margin') {
       bounds.width += margins.left + margins.right;
       bounds.height += margins.top + margins.bottom;
 
-      bounds.left -= margins.left;
-      bounds.top -= margins.top;
+      bounds.x -= margins.left;
+      bounds.y -= margins.top;
     }
 
     if (boxType === 'padding') {
       bounds.width -= borders.left + borders.right;
       bounds.height -= borders.top + borders.bottom;
 
-      bounds.left += borders.left;
-      bounds.top += borders.top;
+      bounds.x += borders.left;
+      bounds.y += borders.top;
     }
 
     if (boxType === 'content') {
       bounds.width -= borders.left + borders.right + paddings.left + paddings.right;
       bounds.height -= borders.top + borders.bottom + paddings.top + paddings.bottom;
 
-      bounds.left += borders.left + paddings.left;
-      bounds.top += borders.top + paddings.top;
+      bounds.x += borders.left + paddings.left;
+      bounds.y += borders.top + paddings.top;
     }
 
-    bounds.x = bounds.left;
-    bounds.y = bounds.top;
+    bounds.left = bounds.x;
+    bounds.top = bounds.y;
+    bounds.right = bounds.x + bounds.width;
+    bounds.bottom = bounds.y + bounds.height;
 
     return bounds;
   }
 
+  function getBoxQuads(node, boxType, offsetX, offsetY) {
+    var rect = node.getBoundingClientRect();
+    var styles = window.getComputedStyle(node);
+
+    var margins = getMargins(styles);
+    var paddings = getPaddings(styles);
+    var borders = getBorders(styles);
+
+    var bounds = getBounds(boxType, rect, margins, borders, paddings, offsetX, offsetY);
+
+    var p1 = { x: bounds.left, y: bounds.top, z: 0, w: 1 };
+    var p2 = { x: bounds.right, y: bounds.top, z: 0, w: 1 };
+    var p3 = { x: bounds.right, y: bounds.bottom, z: 0, w: 1 };
+    var p4 = { x: bounds.left, y: bounds.bottom, z: 0, w: 1 };
+
+    return {
+      p1: p1, p2: p2, p3: p3, p4: p4, bounds: bounds
+    };
+  }
+
   Element.prototype.getBoxQuads = function (opts) {
       opts = opts || {};
+
       var boxType = opts.box || 'border';
-      var element = this;
+      var relativeTo = opts.relativeTo || null;
 
-      function patch(rect) {
-        var styles = window.getComputedStyle(element);
+      if (CSSBoxType.indexOf(boxType) === -1) throw new Error();
 
-        var margins = getMargins(styles);
-        var paddings = getPaddings(styles);
-        var borders = getBorders(styles);
+      if (relativeTo !== null) {
+        var isGeometryNode = GeometryNode.some(function (Class) {
+          return relativeTo instanceof Class;
+        });
 
-        var bounds = getBounds(boxType, rect, margins, borders, paddings);
-
-        var p1 = { x: bounds.x, y: bounds.y, z: 0, w: 1 };
-        var p2 = { x: bounds.x + bounds.width, y: bounds.y, z: 0, w: 1 };
-        var p3 = { x: bounds.x + bounds.width, y: bounds.y + bounds.height, z: 0, w: 1 };
-        var p4 = { x: bounds.x, y: bounds.y + bounds.height, z: 0, w: 1 };
-
-        return {
-          p1: p1, p2: p2, p3: p3, p4: p4, bounds: bounds
-        };
+        if (!isGeometryNode) throw new Error();
       }
 
-      return Array.from(this.getClientRects()).map(patch);
+      if (relativeTo === this) {
+        relativeTo = null;
+      }
+
+      var offsetX = 0;
+      var offsetY = 0;
+      var relativeRect;
+
+      if (relativeTo) {
+        relativeRect = relativeTo.getBoundingClientRect();
+        offsetX = relativeRect.left;
+        offsetY = relativeRect.top;
+      }
+
+      return [getBoxQuads(this, boxType, offsetX, offsetY)];
   };
 })();
