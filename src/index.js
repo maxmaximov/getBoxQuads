@@ -1,5 +1,6 @@
-require('./DOMPoint.js');
-require('./DOMRect.js');
+require('./DOMPoint');
+require('./DOMRect');
+require('./DOMQuad');
 
 var CSSBoxType = ["margin", "border", "padding", "content"];
 var GeometryNode = [Document, Element, Text];
@@ -35,7 +36,7 @@ function getPaddings(styles) {
   return getProps(styles, 'padding');
 }
 
-function getBounds(boxType, rect, margins, borders, paddings, offsetX, offsetY) {
+function buildRect(boxType, rect, margins, borders, paddings, offsetX, offsetY) {
   var x = rect.left - offsetX;
   var y = rect.top - offsetY;
   var width = rect.width;
@@ -76,16 +77,7 @@ function buildBoxQuads(node, boxType, offsetX, offsetY) {
   var paddings = getPaddings(styles);
   var borders = getBorders(styles);
 
-  var bounds = getBounds(boxType, rect, margins, borders, paddings, offsetX, offsetY);
-
-  var p1 = new DOMPoint(bounds.left, bounds.top, 0, 1);
-  var p2 = new DOMPoint(bounds.right, bounds.top, 0, 1);
-  var p3 = new DOMPoint(bounds.right, bounds.bottom, 0, 1);
-  var p4 = new DOMPoint(bounds.left, bounds.bottom, 0, 1);
-
-  return {
-    p1: p1, p2: p2, p3: p3, p4: p4, bounds: bounds
-  };
+  return new DOMQuad(buildRect(boxType, rect, margins, borders, paddings, offsetX, offsetY));
 }
 
 function getBoxQuads(opts) {
