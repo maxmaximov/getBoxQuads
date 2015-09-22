@@ -1,4 +1,5 @@
 require('./DOMPoint.js');
+require('./DOMRect.js');
 
 var CSSBoxType = ["margin", "border", "padding", "content"];
 var GeometryNode = [Document, Element, Text];
@@ -35,43 +36,36 @@ function getPaddings(styles) {
 }
 
 function getBounds(boxType, rect, margins, borders, paddings, offsetX, offsetY) {
-  var bounds = {
-    width: rect.width,
-    height: rect.height,
-    x: rect.left - offsetX,
-    y: rect.top - offsetY
-  };
+  var x = rect.left - offsetX;
+  var y = rect.top - offsetY;
+  var width = rect.width;
+  var height = rect.height;
 
   if (boxType === 'margin') {
-    bounds.width += margins.left + margins.right;
-    bounds.height += margins.top + margins.bottom;
+    x -= margins.left;
+    y -= margins.top;
 
-    bounds.x -= margins.left;
-    bounds.y -= margins.top;
+    width += margins.left + margins.right;
+    height += margins.top + margins.bottom;
   }
 
   if (boxType === 'padding') {
-    bounds.width -= borders.left + borders.right;
-    bounds.height -= borders.top + borders.bottom;
+    x += borders.left;
+    y += borders.top;
 
-    bounds.x += borders.left;
-    bounds.y += borders.top;
+    width -= borders.left + borders.right;
+    height -= borders.top + borders.bottom;
   }
 
   if (boxType === 'content') {
-    bounds.width -= borders.left + borders.right + paddings.left + paddings.right;
-    bounds.height -= borders.top + borders.bottom + paddings.top + paddings.bottom;
+    x += borders.left + paddings.left;
+    y += borders.top + paddings.top;
 
-    bounds.x += borders.left + paddings.left;
-    bounds.y += borders.top + paddings.top;
+    width -= borders.left + borders.right + paddings.left + paddings.right;
+    height -= borders.top + borders.bottom + paddings.top + paddings.bottom;
   }
 
-  bounds.left = bounds.x;
-  bounds.top = bounds.y;
-  bounds.right = bounds.x + bounds.width;
-  bounds.bottom = bounds.y + bounds.height;
-
-  return bounds;
+  return new DOMRect(x, y, width, height);
 }
 
 function buildBoxQuads(node, boxType, offsetX, offsetY) {
