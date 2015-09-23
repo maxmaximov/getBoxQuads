@@ -1,29 +1,29 @@
-require('./DOMPoint');
-require('./DOMRect');
+import './DOMPoint';
+import './DOMRect';
 
 /*function buildBounds(p1, p2, p3, p4) {
   return new DOMRect();
 }*/
 
-function DOMQuad() {
-  if (arguments.length === 1) {
-    var rect = arguments[0];
+class DOMQuad {
+  constructor(rect, ...rest) {
+    if (rest.length) {
+      throw new Error('DOMQuad constructor: "A work with DOMPoint arguments are not implemented yet"');
+    } else if (!rect) {
+      throw new Error('DOMQuad constructor: "I need more arguments"');
+    } else if (!(rect instanceof DOMRect)) {
+      throw new Error('DOMQuad constructor: "A rect should be an instance of the DOMRect class"');
+    } else {
+      this.bounds = rect;
 
-    if (!(rect instanceof DOMRect)) throw new Error();
+      //TODO redesign this shit
+      let { x, y, width, height } = rect;
 
-    this.bounds = rect;
-
-    var x = rect.x;
-    var y = rect.y;
-    var width = rect.width;
-    var height = rect.height;
-
-    this.p1 = new DOMPoint(x, y, 0, 1);
-    this.p2 = new DOMPoint(x + width, y, 0, 1);
-    this.p3 = new DOMPoint(x + width, y + height, 0, 1);
-    this.p4 = new DOMPoint(x, y + height, 0, 1);
-  } else {
-    throw new Error('DOMPoint arguments are not implemented yet');
+      this.p1 = new DOMPoint(x, y, 0, 1);
+      this.p2 = new DOMPoint(x + width, y, 0, 1);
+      this.p3 = new DOMPoint(x + width, y + height, 0, 1);
+      this.p4 = new DOMPoint(x, y + height, 0, 1);
+    }
   }
 }
 

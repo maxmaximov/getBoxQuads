@@ -5,5 +5,13 @@ module.exports = {
   output: {
     publicPath: "build/",
     filename: "build/index.js"
+  },
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        loader: "babel-loader"
+      }
+    ]
   }
 };

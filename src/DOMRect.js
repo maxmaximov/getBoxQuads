@@ -1,13 +1,13 @@
-function DOMRect(x, y, width, height) {
-  this.x = x || 0;
-  this.y = y || 0;
-  this.width = width || 0;
-  this.height = height || 0;
-
-  this.left = this.x;
-  this.top = this.y;
-  this.right = this.x + this.width;
-  this.bottom = this.y + this.height;
+class DOMRect {
+  //TODO Arguments need a validation
+  constructor(x = 0, y = 0, width = 0, height = 0) {
+    this.left = this.x = x;
+    this.top = this.y = y;
+    this.width = width;
+    this.height = height;
+    this.right = this.x + this.width;
+    this.bottom = this.y + this.height;
+  }
 }
 
 window.DOMRect = window.DOMRect || DOMRect;
