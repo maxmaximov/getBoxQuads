@@ -2,6 +2,8 @@ import { DOMPoint, DOMRect, DOMQuad, getBoxQuads } from './index';
 
 function test() {
   console.log(new DOMPoint());
+  console.log(new window.DOMPoint());
+  //console.log(new DOMRect(new DOMPoint()));
   console.log(getBoxQuads(document.getElementById('d'), { box: 'margin' })[0].bounds);
   console.log(document.getElementById('d').getBoxQuads({ box: 'margin' })[0].bounds);
   console.log(document.getBoxQuads({ box: 'margin' })[0].bounds);
