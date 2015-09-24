@@ -1,8 +1,8 @@
 import DOMRect from './DOMRect';
 import DOMQuad from './DOMQuad';
+import GeometryNode from './GeometryNode';
 
 const CSSBoxType = ['margin', 'border', 'padding', 'content'];
-const GeometryNode = [Document, Element, Text];
 
 function getProps(styles, prop) {
   let props = {
@@ -86,6 +86,13 @@ export default function getBoxQuads(node, { box = 'border', relativeTo = null } 
   //TODO Are you sure about this?
   if (relativeTo === node) {
     relativeTo = null;
+  } else if (relativeTo === document) {
+    relativeTo = document.documentElement;
+  }
+
+  //TODO And about this?
+  if (node === document) {
+    node = document.documentElement;
   }
 
   return [buildBoxQuads(node, box, relativeTo)];

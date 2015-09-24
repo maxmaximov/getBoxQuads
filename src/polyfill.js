@@ -1,18 +1,21 @@
-import DOMPoint from './DOMPoint';
-import DOMRect from './DOMRect';
-import DOMQuad from './DOMQuad';
-import getBoxQuads from './getBoxQuads';
+import { DOMPoint, DOMRect, DOMQuad, getBoxQuads, convertQuadFromNode, convertRectFromNode, convertPointFromNode } from './index';
+import GeometryNode from './GeometryNode';
 
-const patches = { DOMPoint, DOMRect, DOMQuad };
+const globalPatches = { DOMPoint, DOMRect, DOMQuad };
+const prototypePatches = { getBoxQuads, convertQuadFromNode, convertRectFromNode, convertPointFromNode };
 
-Object.keys(patches).forEach(name => {
+Object.keys(globalPatches).forEach(name => {
   if (!window.hasOwnProperty(name)) {
-    window[name] = patches[name];
+    window[name] = globalPatches[name];
   }
 });
 
-if (!Element.prototype.getBoxQuads) {
-  Element.prototype.getBoxQuads = function (...args) {
-    return getBoxQuads(this, ...args);
-  }
-}
+GeometryNode.forEach(prototype => {
+  Object.keys(prototypePatches).forEach(name => {
+    if (!prototype.prototype.hasOwnProperty(name)) {
+      prototype.prototype[name] = function (...args) {
+        return prototypePatches[name](this, ...args);
+      }
+    }
+  });
+});
