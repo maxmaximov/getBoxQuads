@@ -8,4 +8,5 @@ class DOMPoint {
   }
 }
 
-window.DOMPoint = window.DOMPoint || DOMPoint;
+const DOMPointClass = window.DOMPoint || DOMPoint;
+export default DOMPointClass;

@@ -10,4 +10,5 @@ class DOMRect {
   }
 }
 
-window.DOMRect = window.DOMRect || DOMRect;
+const DOMRectClass = window.DOMRect || DOMRect;
+export default DOMRectClass;

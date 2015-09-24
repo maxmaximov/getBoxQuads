@@ -1,5 +1,5 @@
-import './DOMPoint';
-import './DOMRect';
+import DOMPoint from './DOMPoint';
+import DOMRect from './DOMRect';
 
 /*function buildBounds(p1, p2, p3, p4) {
   return new DOMRect();
@@ -11,7 +11,7 @@ class DOMQuad {
       throw new Error('DOMQuad constructor: "A work with DOMPoint arguments are not implemented yet"');
     } else if (!rect) {
       throw new Error('DOMQuad constructor: "I need more arguments"');
-    } else if (!(rect instanceof DOMRect)) {
+    } else if (!(window.DOMRect && rect instanceof window.DOMRect) && !(rect instanceof DOMRect)) {
       throw new Error('DOMQuad constructor: "A rect should be an instance of the DOMRect class"');
     } else {
       this.bounds = rect;
@@ -27,4 +27,5 @@ class DOMQuad {
   }
 }
 
-window.DOMQuad = window.DOMQuad || DOMQuad;
+const DOMQuadClass = window.DOMQuad || DOMQuad;
+export default DOMQuadClass;
